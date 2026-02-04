@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple To-Do List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .task-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .task-text {
+            color: #333;
+            font-size: 1em;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            padding: 8px 15px;
+            font-size: 0.9em;
+            border-radius: 5px;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 My To-Do List</h1>
+        
+        <div class="input-group">
+            <input 
+                type="text" 
+                id="taskInput" 
+                placeholder="Add a new task..."
+                onkeypress="if(event.key==='Enter') addTask()"
+            >
+            <button onclick="addTask()">Add</button>
+        </div>
+
+        <ul class="task-list" id="tasksList"></ul>
+        <div class="empty-message" id="emptyMessage">No tasks yet! Add one to get started 🚀</div>
+    </div>
+
+    <script>
+        let tasks = [];
+
+        /**
+         * Adds a new task to the to-do list
+         */
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const task = input.value.trim();
+
+            if (task === "") {
+                alert("❌ Task cannot be empty!");
+                return;
+            }
+
+            tasks.push(task);
+            input.value = "";
+            renderTasks();
+            console.log(`✅ Task added: "${task}"`);
+        }
+
+        /**
+         * Deletes a task at the specified index
+         */
+        function deleteTask(index) {
+            if (index < 0 || index >= tasks.length) {
+                console.log("❌ Invalid task index!");
+                return;
+            }
+
+            const deletedTask = tasks[index];
+            tasks.splice(index, 1);
+            renderTasks();
+            console.log(`🗑️  Deleted: "${deletedTask}"`);
+        }
+
+        /**
+         * Renders all tasks to the DOM
+         */
+        function renderTasks() {
+            const tasksList = document.getElementById('tasksList');
+            const emptyMessage = document.getElementById('emptyMessage');
+
+            tasksList.innerHTML = "";
+
+            if (tasks.length === 0) {
+                emptyMessage.style.display = "block";
+                return;
+            }
+
+            emptyMessage.style.display = "none";
+
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = 'task-item';
+                li.innerHTML = `
+                    <span class="task-text">${index + 1}. ${escapeHtml(task)}</span>
+                    <button class="delete-btn" onclick="deleteTask(${index})">Delete</button>
+                `;
+                tasksList.appendChild(li);
+            });
+        }
+
+        /**
+         * Escapes HTML to prevent XSS attacks
+         */
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initial render
+        renderTasks();
+    </script>
+</body>
+</html>
